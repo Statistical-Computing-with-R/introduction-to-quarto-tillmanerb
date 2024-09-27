@@ -1,79 +1,106 @@
 ---
 title: "Lab 1: Introduction to Quarto"
 author: "Tillman Erb"
-date: "2024-09-26"
-format: html
+format: 
+  html:
+    toc: true
 editor: source
 embed-resources: true
+code-fold: true
+theme: darkly
 execute:
-  echo: false
+  echo: true
+  error: true
+
 ---
+
+To do: revise code spacing, revise formatting, make figure caption one instead of two
 
 # Part Two: Exploring Quarto Documents
 
-## Specifying Global Execute Options
+## 1.0: Specifying Global Execute Options
 
-Execution options specify how the R code in your Quarto document should be
-displayed. This [guide](https://quarto.org/docs/computations/execution-options.html)
-provides descriptions on the options you can specify in a document's execution.
+Execution options specify how the R code in your Quarto document should be displayed. This [guide](https://quarto.org/docs/computations/execution-options.html) provides descriptions on the options you can specify in a document's execution.
 
-**Question 1** -- Add your name and the date to the YAML. 
+**Question 1** -- Add your name and the date to the YAML.
 
-**Question 2** -- Add an `execute` line to your YAML that includes the following
-options, (1) your source code is always output on the page, and (2) your
-document will render even if there are errors.
+**Question 2** -- Add an `execute` line to your YAML that includes the following options, (1) your source code is always output on the page, and (2) your document will render even if there are errors.
 
-## Running the Provided Code
+## 2.0: Loading Guinea Pig Orange Juice Dataset
 
 ```{r}
 #| eval: false
 #| echo: true
 #| label: practicing-running-code
 
-1 + 1
+# Load a dataset into the R Environment.
+data(ToothGrowth)
+
+# Look at the summary of the variables in the dataset.
+summary(ToothGrowth)
 ```
 
-**Question 3** -- Let's spice this code up a bit. Delete `1 + 1` from the code
-chunk and paste in the code provided in the Lab 1 instructions. 
+**Question 3** -- Let's spice this code up a bit. Delete `1 + 1` from the code chunk and paste in the code provided in the Lab 1 instructions.
 
-### Check the Data Documentation
+### 2.1: Check the Data Documentation
 
-**Question 4** -- In your **console** (*not* in the Quarto document), type
-`?ToothGrowth` (or alternatively `help(ToothGrowth)`.Use the information that
-pops up in the *Help* pane in RStudio to fill in the blanks below. 
+**Question 4** -- In your **console** (*not* in the Quarto document), type `?ToothGrowth` (or alternatively `help(ToothGrowth)`.Use the information that pops up in the *Help* pane in RStudio to fill in the blanks below.
 
-*This dataset investigates the effect of _____ on tooth growth in ____.*
+*This dataset investigates the effect of Vitamic C on tooth growth in Guinea Pigs.*
 
-*The two supplement delivery methods include OJ (____) and VC (____).*
+*The two supplement delivery methods include OJ (orange juice) and VC (vitamin C).*
 
-*`ToothGrowth` is a data frame with ___observations and ____ variables.*
+*`ToothGrowth` is a data frame with 60 observations and 3 variables.*
 
-**Question 5** -- *Before* the code chunk, change the "Running the Provided
-Code" section header to a header that better describes the contents of this
-section (e.g., Tooth Growth Dataset).
+**Question 5** -- *Before* the code chunk, change the "Running the Provided Code" section header to a header that better describes the contents of this section (e.g., Tooth Growth Dataset).
 
-## Creating a Plot
+## 3.0: Creating a Plot
 
 **Question 6** -- Replace the `plot(pressure)` code with the code provided in the Lab 1 instructions.
 
 ```{r}
 #| echo: true
 #| label: creating-a-plot
+#| layout-ncol: 2
+#| fig-cap: 
+#|    - "Box plot of guinea pig tooth growth for doses of OJ and Vitamin C"
+#|    - "Tooth growth in guinea pigs by doseage"
+#| fig-align: center
 
-plot(pressure)
+library(tidyverse)
+
+ggplot(data = ToothGrowth, 
+       mapping = aes(x = supp, y = len)) +
+  geom_boxplot() +
+  labs(x = "Supplement", y = "Length of Teeth (mm)")
+
+ToothGrowth %>% 
+  mutate(dose = as.factor(dose)) %>% 
+  ggplot(mapping = aes(x = dose, y = len)) +
+  geom_boxplot() +
+  labs(x = "Dose of Supplement (mg/day)", y = "Length of Teeth (mm)")
 ```
 
-Now, run this code chunk! You should see two side-by-side boxplots, one plot
-comparing tooth length between the two supplement delivery methods and one plot
-comparing tooth length between the three different dosages uses. 
+Now, run this code chunk! You should see two side-by-side boxplots, one plot comparing tooth length between the two supplement delivery methods and one plot comparing tooth length between the three different dosages uses.
 
-**Question 7** -- Read over the [Quarto documentation on figure options](https://quarto.org/docs/authoring/figures.html#computations)
-and add an option (`#|`) to the above code chunk to make the figures print
-side-by-side (i.e., in one row) in the rendered HTML file. 
+**Question 7** -- Read over the [Quarto documentation on figure options](https://quarto.org/docs/authoring/figures.html#computations) and add an option (`#|`) to the above code chunk to make the figures print side-by-side (i.e., in one row) in the rendered HTML file.
 
-**Question 8** -- Specify in the code chunk options that these boxplots 
-should be **center aligned**.
+**Question 8** -- Specify in the code chunk options that these boxplots should be **center aligned**.
 
-**Question 9** -- Specify a **figure caption** for the boxplots (using a
-code-chunk option).
+**Question 9** -- Specify a **figure caption** for the boxplots (using a code-chunk option).
 
+## 4.0: Implmenting and analyzing a two-sample t-test
+**Question 10 & Question 11**
+```{r}
+#| eval: true
+#| echo: true
+#| label: T test code block
+
+#2-sample t-test on tooth growth between doses of OJ and VC
+t.test(len ~ supp, data = ToothGrowth)
+```
+
+**Question 12**
+
+1. Conclusion: With a p-value of 0.06 approaching a statistically significant value of p = 0.05, we fail to reject the null hypothesis and conclude that there is not sufficient evidence to prove that there is a statistically significant difference in  mean tooth growth in guinea pigs between doses of orange juice and vitamin C.
+2. We are 95% confident that the true difference between orange juice and vitamin C (OJ -  VC) lies in between -0.17 and 7.57.
